@@ -1,184 +1,321 @@
-{% load static %}
+{% extends 'shop/background.html' %} {% load static %} {% block content %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Product Index</title>
+<div class="container-fluid py-4">
+  <!-- ================= HEADER (Mobile Hamburger) ================= -->
+  <div
+    class="d-md-none mb-3 d-flex justify-content-between align-items-center px-3"
+  >
+    <button class="btn btn-theme" id="sidebarToggle">☰</button>
+    <h4 class="mb-0">Shop</h4>
+  </div>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
-    <link rel="stylesheet" href="{% static 'shop/style.css' %}">
+  <div class="row">
+    <!-- ================= SIDEBAR ================= -->
+    <aside class="col-12 col-md-3 mb-4 mb-md-0">
+      <div class="sidebar" id="sidebar">
+        <div class="accordion" id="categoryAccordion">
+          <!-- All Products -->
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <a href="/" class="accordion-button collapsed">All Products</a>
+            </h2>
+          </div>
 
-    <style>
-        .product-card {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            transition: transform 0.2s;
-        }
-        .product-card:hover {
-            transform: scale(1.02);
-        }
-        .product-card img {
-            height: 200px;
-            object-fit: cover;
-        }
-        .product-body {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-        .product-title, .product-price {
-            margin-bottom: 0.5rem;
-        }
-        .btn-group {
-            display: flex;
-            justify-content: space-between;
-        }
-    </style>
-</head>
-<body>
+          <!-- Categories Loop -->
+          {% for category in categories %}
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button
+                class="accordion-button collapsed"
+                data-bs-toggle="collapse"
+                data-bs-target="#cat{{category.id}}"
+              >
+                {{category.name}}
+              </button>
+            </h2>
+            <div
+              id="cat{{category.id}}"
+              class="accordion-collapse collapse"
+              data-bs-parent="#categoryAccordion"
+            >
+              <div class="accordion-body p-1">
+                <ul class="list-group list-group-flush">
+                  {% for sub in category.subcategories.all %}
+                  <li class="list-group-item">
+                    <a href="?subcategory={{sub.id}}">{{sub.name}}</a>
+                  </li>
+                  {% endfor %}
+                </ul>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </aside>
 
-<div class="container py-3">
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light px-4 mb-4">
-    <a class="navbar-brand" href="#">Shop</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ms-auto">
-            <!-- Removed Home, Features, and Disabled -->
-            <li class="nav-item">
-                <button id="cart" type="button" class="btn btn-secondary"
-                        data-bs-toggle="popover"
-                        data-bs-placement="bottom"
-                        data-bs-html="true"
-                        data-bs-content="<h5>Add to cart</h5>">
-                    Cart(0)
+    <!-- ================= MAIN CONTENT ================= -->
+    <main class="col-12 col-md-9 d-flex justify-content-center">
+      <div class="main-wrapper w-100" style="max-width: 1200px">
+        <!-- SEARCH -->
+        <form class="mb-4 d-flex justify-content-center">
+          <div class="search-wrapper w-100 w-md-75">
+            <input
+              type="search"
+              name="item_name"
+              placeholder="Search products..."
+              class="form-control search-input"
+            />
+            <button class="search-btn" type="submit">🔍</button>
+          </div>
+        </form>
+
+        <!-- PRODUCTS GRID -->
+        <div class="products-wrapper">
+          {% for product in product_objects %}
+          <div class="elegant-glass-card">
+            <img
+              src="{% if product.image and product.image.url %}{{product.image.url}}{% elif product.image_url %}{{product.image_url}}{% else %}{% static 'shop/no-image.png' %}{% endif %}"
+              alt="{{product.title}}"
+            />
+            <div class="mt-3">
+              <h5 class="product-name" data-id="{{product.id}}">
+                {{product.title}}
+              </h5>
+              <p class="product-price" data-id="{{product.id}}">
+                $ {{product.price}}
+              </p>
+              <div class="d-flex justify-content-between">
+                <a href="/{{product.id}}" class="btn btn-theme">View</a>
+                <button
+                  class="btn atc btn-theme-solid"
+                  data-id="{{product.id}}"
+                >
+                  Add to cart
                 </button>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+
+        <!-- PAGINATION -->
+        <nav class="mt-5">
+          <ul class="pagination justify-content-center">
+            {% if product_objects.has_previous %}
+            <li class="page-item">
+              <a
+                class="page-link"
+                href="?page={{product_objects.previous_page_number}}"
+                >Previous</a
+              >
             </li>
-        </ul>
-    </div>
-</nav>
-
-
-    <!-- Search -->
-    <form class="card card-sm mb-4">
-        <div class="card-body row align-items-center">
-            <div class="col">
-                <input type="search" name="item_name" placeholder="Search for products" class="form-control">
-            </div>
-            <div class="col-auto">
-                <button class="btn btn-success" type="submit">Search</button>
-            </div>
-        </div>
-    </form>
-
-    <!-- Product Grid -->
-    <div class="row g-4">
-        {% for product in product_objects %}
-        <div class="col-md-3 d-flex">
-            <div class="card product-card w-100">
-                <img src="{{ product.image }}" class="card-img-top" alt="Product Image">
-                <div class="card-body product-body">
-                    <div>
-                        <h5 id="nm{{ product.id }}" class="product-title">{{ product.title }}</h5>
-                        <p id="price{{ product.id }}" class="product-price">$ {{ product.price }}</p>
-                    </div>
-                    <div class="btn-group">
-                        <a href="/{{ product.id }}" class="btn btn-warning">View</a>
-                        <button id="{{ product.id }}" class="btn atc btn-warning">Add to cart</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-
-    <!-- Pagination -->
-    <div class="row mt-4">
-        <div class="col-md-3 offset-md-4">
-            <ul class="pagination">
-                {% if product_objects.has_previous %}
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ product_objects.previous_page_number }}">Previous</a>
-                </li>
-                {% endif %}
-
-                <li class="page-item active">
-                    <a class="page-link" href="?page={{ product_objects.number }}">{{ product_objects.number }}</a>
-                </li>
-
-                {% if product_objects.has_next %}
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ product_objects.next_page_number }}">Next</a>
-                </li>
-                {% endif %}
-            </ul>
-        </div>
-    </div>
+            {% endif %}
+            <li class="page-item active">
+              <span class="page-link">{{product_objects.number}}</span>
+            </li>
+            {% if product_objects.has_next %}
+            <li class="page-item">
+              <a
+                class="page-link"
+                href="?page={{product_objects.next_page_number}}"
+                >Next</a
+              >
+            </li>
+            {% endif %}
+          </ul>
+        </nav>
+      </div>
+    </main>
+  </div>
 </div>
 
-<!-- Cart Script -->
+<!-- ================= CART SCRIPT ================= -->
 <script>
-    console.log('Cart system is working ✅');
-    let cart = localStorage.getItem('cart') ? JSON.parse(localStorage.getItem('cart')) : {};
+  const cart = JSON.parse(localStorage.getItem("cart") || "{}");
 
-    function generateCartHTML(cart) {
-        let cartString = "<h5>Your Cart</h5>";
-        let index = 1;
+  $(document).on("click", ".atc", function () {
+    const id = this.dataset.id;
+    const name = document.querySelector(
+      `.product-name[data-id='${id}']`,
+    ).innerText;
+    const price = parseFloat(
+      document
+        .querySelector(`.product-price[data-id='${id}']`)
+        .innerText.replace("$", ""),
+    );
 
-        for (let x in cart) {
-            const name = cart[x][1];
-            const qty = cart[x][0];
-            const total = cart[x][2].toFixed(2);
-            cartString += `${index}. ${name} — Qty: ${qty} — Total: $${total}<br>`;
-            index++;
-        }
+    if (cart[id]) cart[id][0] += 1;
+    else cart[id] = [1, name, price];
 
-        cartString += `<div class="mt-2 text-center"><a href="/checkout" class="btn btn-success btn-sm">Checkout</a></div>`;
-        return cartString;
-    }
+    localStorage.setItem("cart", JSON.stringify(cart));
+  });
 
-    document.addEventListener('DOMContentLoaded', function () {
-        const popoverTrigger = document.getElementById('cart');
-        new bootstrap.Popover(popoverTrigger, {
-            html: true,
-            content: generateCartHTML(cart),
-            placement: 'bottom'
-        });
-
-        document.getElementById("cart").innerHTML = "Cart(" + Object.keys(cart).length + ")";
-    });
-
-    $(document).on('click', '.atc', function () {
-        const item_id = this.id.toString();
-        const itemName = document.getElementById("nm" + item_id)?.innerText.trim() || `Item ${item_id}`;
-        const price = parseFloat(document.getElementById("price" + item_id).innerText.replace('$', '').trim());
-
-        if (cart[item_id]) {
-            cart[item_id][0] += 1;
-            cart[item_id][2] += price;
-        } else {
-            cart[item_id] = [1, itemName, price];
-        }
-
-        localStorage.setItem('cart', JSON.stringify(cart));
-        document.getElementById("cart").innerHTML = "Cart(" + Object.keys(cart).length + ")";
-
-        const popoverTrigger = document.getElementById("cart");
-        const popover = bootstrap.Popover.getInstance(popoverTrigger);
-        if (popover) {
-            popover.setContent({ '.popover-body': generateCartHTML(cart) });
-        }
-    });
+  // ================= SIDEBAR TOGGLE =================
+  $("#sidebarToggle").on("click", function () {
+    $("#sidebar").toggleClass("active");
+  });
 </script>
 
-</body>
-</html>
+<style>
+  :root {
+    --theme: #6f4545;
+  }
+  body {
+    background: #f9f4f4;
+    font-family: sans-serif;
+    margin: 0;
+  }
+
+  /* ================= SIDEBAR ================= */
+  .sidebar {
+    background: var(--theme);
+    padding: 20px;
+    border-radius: 10px;
+    overflow-y: auto;
+  }
+  .sidebar a {
+    color: white;
+    text-decoration: none;
+  }
+  .sidebar a:hover {
+    opacity: 0.8;
+  }
+  .accordion-button {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    margin-bottom: 5px;
+    color: white;
+    font-weight: 600;
+  }
+  .accordion-button:not(.collapsed) {
+    background: rgba(255, 255, 255, 0.1);
+  }
+  .accordion-item,
+  .list-group-item {
+    background: transparent;
+    border: none;
+    padding: 5px 0;
+  }
+
+  /* ================= SEARCH ================= */
+  .search-wrapper {
+    width: 100%;
+    max-width: 450px;
+    margin: 0 auto;
+    position: relative;
+  }
+  .search-input {
+    width: 100%;
+    padding: 10px 55px 10px 20px;
+    border-radius: 50px;
+    border: 2px solid var(--theme);
+    font-size: 1rem;
+    outline: none;
+  }
+  .search-input:focus {
+    box-shadow: 0 0 0 0.2rem rgba(111, 69, 69, 0.3);
+    border-color: var(--theme);
+  }
+  .search-btn {
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    transform: translateY(-50%);
+    border-radius: 50%;
+    background: var(--theme);
+    border: none;
+    color: white;
+    padding: 6px 10px;
+    cursor: pointer;
+  }
+
+  /* ================= PRODUCT GRID ================= */
+  .products-wrapper {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
+  .elegant-glass-card {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    border-radius: 1.5rem;
+    border: 1px solid rgba(139, 93, 93, 0.5);
+    backdrop-filter: blur(20px);
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 10px 30px rgba(139, 93, 93, 0.1);
+    transition: 0.3s;
+  }
+  .elegant-glass-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 15px 40px rgba(139, 93, 93, 0.25);
+  }
+  .elegant-glass-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 12px;
+  }
+
+  /* ================= BUTTONS ================= */
+  .btn-theme {
+    border: 2px solid var(--theme);
+    color: var(--theme);
+    background: white;
+    padding: 6px 12px;
+    cursor: pointer;
+  }
+  .btn-theme:hover {
+    background: var(--theme);
+    color: white;
+  }
+  .btn-theme-solid {
+    background: var(--theme);
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    cursor: pointer;
+  }
+  .btn-theme-solid:hover {
+    opacity: 0.9;
+  }
+
+  /* ================= PAGINATION ================= */
+  .page-link {
+    color: var(--theme);
+  }
+  .page-item.active .page-link {
+    background: var(--theme);
+    border-color: var(--theme);
+  }
+
+  /* ================= MAIN WRAPPER ================= */
+  .main-wrapper {
+    margin: auto;
+  }
+
+  /* ================= RESPONSIVE ================= */
+  @media (max-width: 768px) {
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: -300px;
+      width: 250px;
+      height: 100vh;
+      transition: 0.3s;
+      z-index: 999;
+    }
+    .sidebar.active {
+      left: 0;
+    }
+    main {
+      margin-left: 0;
+    }
+    .search-wrapper {
+      max-width: 100%;
+    }
+  }
+</style>
+
+{% endblock %}

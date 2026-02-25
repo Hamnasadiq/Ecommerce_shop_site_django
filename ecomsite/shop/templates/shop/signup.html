@@ -1,0 +1,36 @@
+{% extends 'shop/background.html' %}
+
+{% block content %}
+
+<div class="container mt-5">
+
+<h3>Signup</h3>
+
+<form method="POST">
+
+{% csrf_token %}
+
+<input name="username"
+placeholder="Username"
+class="form-control mb-3">
+
+<input name="email"
+placeholder="Email"
+class="form-control mb-3">
+
+<input type="password"
+name="password"
+placeholder="Password"
+class="form-control mb-3">
+
+<button class="btn btn-success">
+
+Create Account
+
+</button>
+
+</form>
+
+</div>
+
+{% endblock %}

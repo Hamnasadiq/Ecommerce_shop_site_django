@@ -1,0 +1,131 @@
+/* ================= Background gradient ================= */
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow-x: hidden;
+}
+
+.background-container {
+  position: relative;
+  min-height: 100vh;
+  overflow: visible;
+  background: linear-gradient(to bottom right, #F5F1EE, #E6D2CD, #D8B4B4);
+}
+
+/* ================= Layer 1: subtle sparkles ================= */
+.layer1 {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 5% 10%, rgba(255, 255, 255, 0.6) 1px, transparent 1.5px),
+    radial-gradient(circle at 95% 15%, rgba(255, 255, 255, 0.5) 1px, transparent 1.5px),
+    radial-gradient(circle at 15% 85%, rgba(255, 255, 255, 0.7) 1px, transparent 1.5px),
+    radial-gradient(circle at 85% 90%, rgba(255, 255, 255, 0.6) 1px, transparent 1.5px),
+    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.4) 2px, transparent 2.5px),
+    radial-gradient(circle at 70% 30%, rgba(255, 255, 255, 0.5) 1px, transparent 1.5px),
+    radial-gradient(circle at 30% 70%, rgba(255, 255, 255, 0.6) 1px, transparent 1.5px);
+  background-size: 300px 300px, 250px 250px, 280px 280px, 320px 320px, 200px 200px, 270px 270px, 290px 290px;
+  animation: sparkleMove1 25s infinite linear, sparkleMove2 30s infinite linear reverse;
+  pointer-events: none;
+}
+
+/* ================= Layer 2: larger sparkles ================= */
+.layer2 {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 20% 40%, rgba(255, 220, 220, 0.8) 2px, transparent 4px),
+    radial-gradient(circle at 80% 60%, rgba(255, 230, 230, 0.7) 2px, transparent 4px),
+    radial-gradient(circle at 40% 80%, rgba(255, 240, 240, 0.9) 3px, transparent 5px),
+    radial-gradient(circle at 60% 20%, rgba(255, 250, 250, 0.8) 2px, transparent 4px);
+  background-size: 400px 400px, 350px 350px, 380px 380px, 420px 420px;
+  animation: sparkleMove3 35s infinite linear, sparkleGlow 4s infinite alternate;
+  pointer-events: none;
+}
+
+/* ================= Layer 3: individual sparkles ================= */
+.layer3 {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.sparkle {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(0.5px);
+  background: radial-gradient(circle, rgba(255,255,255,0.9) 30%, rgba(255,220,220,0.5) 70%, transparent 100%);
+  box-shadow: 0 0 6px 3px rgba(255, 220, 220, 0.6);
+  animation: sparkleTwinkle 5s infinite, sparkleFloat 30s infinite linear;
+}
+
+/* ================= Animations ================= */
+@keyframes sparkleMove1 {
+  0% { background-position: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0; }
+  100% { background-position: 300px 300px, 250px 250px, 280px 280px, 320px 320px, 200px 200px, 270px 270px, 290px 290px; }
+}
+
+@keyframes sparkleMove2 {
+  0% { background-position: 100px 100px, 150px 150px, 180px 180px, 220px 220px; }
+  100% { background-position: 500px 500px, 450px 450px, 480px 480px, 520px 520px; }
+}
+
+@keyframes sparkleMove3 {
+  0% { background-position: 0 0, 0 0, 0 0, 0 0; }
+  100% { background-position: 400px 400px, 350px 350px, 380px 380px, 420px 420px; }
+}
+
+@keyframes sparkleTwinkle {
+  0%, 100% { opacity: 0.2; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+@keyframes sparkleGlow {
+  0% { opacity: 0.4; filter: brightness(0.8); }
+  100% { opacity: 1; filter: brightness(1.2) blur(1px); }
+}
+
+@keyframes sparkleFloat {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  25% { transform: translate(20px, -20px) rotate(90deg); }
+  50% { transform: translate(40px, 0) rotate(180deg); }
+  75% { transform: translate(20px, 20px) rotate(270deg); }
+  100% { transform: translate(0, 0) rotate(360deg); }
+}
+
+/* ================= Pause animations when window is blurred ================= */
+.pause-animations * {
+  animation-play-state: paused !important;
+}
+
+/* ================= Page content layer ================= */
+.content {
+  position: relative;
+  z-index: 10;
+  padding: 50px;
+  text-align: center;
+}
+/* BACKGROUND BASE FIX */
+
+.background-container {
+    min-height: 100vh;
+    position: relative;
+    overflow: visible;   /* REQUIRED for sticky sidebar */
+}
+/* Page content wrapper */
+.content {
+    position: relative;
+    z-index: 10;
+    padding: 0;            /* NO SPACE */
+}
+/* optional background layers (if you use them) */
+.layer1,
+.layer2,
+.layer3 {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+}
