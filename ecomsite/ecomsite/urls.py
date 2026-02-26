@@ -1,21 +1,8 @@
 """
 URL configuration for ecomsite project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/5.2/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path,include
+from django.urls import path, include
 from shop import views
 
 
@@ -23,21 +10,39 @@ urlpatterns = [
 
     path('admin/', admin.site.urls),
 
-    path('chaining/',include('smart_selects.urls')),
+    path('chaining/', include('smart_selects.urls')),
 
     # pages
-    path('',views.index,name='index'),
+    path('', views.index, name='index'),
 
-    path('<int:id>/', views.details,name='details'),
+    path('<int:id>/', views.details, name='details'),
 
-    path('checkout/',views.checkout,name="checkout"),
+    # cart (server-side)
+    path('cart/', views.cart_view, name='cart'),
 
+    path('add-to-cart/<int:product_id>/', views.add_to_cart, name='add_to_cart'),
+
+    path('delete-cart-item/<int:item_id>/', views.delete_cart_item, name='delete_cart_item'),
+
+    # orders
+    path('place-order/', views.place_order, name='place_order'),
+
+    path('order-success/<str:order_code>/', views.order_success, name='order_success'),
+
+    path('track-order/', views.track_order, name='track_order'),
+
+    # legacy checkout redirect
+    path('checkout/', views.checkout, name='checkout'),
 
     # authentication
-    path('signup/',views.signup_view,name='signup'),
+    path('signup/', views.signup_view, name='signup'),
 
-    path('login/',views.login_view,name='login'),
+    path('login/', views.login_view, name='login'),
 
-    path('logout/',views.logout_view,name='logout'),
+    path('logout/', views.logout_view, name='logout'),
+
+    # profile & wishlist
+    path('profile/', views.profile_view, name='profile'),
+    path('wishlist/toggle/<int:product_id>/', views.toggle_wishlist, name='toggle_wishlist'),
 
 ]

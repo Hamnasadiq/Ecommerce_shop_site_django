@@ -1,0 +1,91 @@
+{% extends 'shop/background.html' %}
+{% load static %}
+
+{% block title %}Track Order — Shopix{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'shop/css/cart.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="cart-card glass-card">
+
+        {% if error %}
+          <!-- ERROR STATE -->
+          <div class="text-center py-5">
+            <i class="fa-solid fa-circle-exclamation fa-3x mb-3" style="color:#ef4444;"></i>
+            <h4 style="font-weight:700; color:var(--text-dark);">Order Not Found</h4>
+            <p style="color:var(--text-muted);">{{ error }}</p>
+            <a href="{% url 'cart' %}" class="btn btn-theme mt-2">
+              <i class="fa-solid fa-arrow-left me-1"></i> Back to Cart
+            </a>
+          </div>
+        {% elif order %}
+          <!-- ORDER DETAILS -->
+          <div class="cart-card-header mb-3">
+            <h4>
+              <i class="fa-solid fa-box me-2"></i>Order {{ order.order_code }}
+            </h4>
+            <span class="badge
+              {% if order.status == 'delivered' %}bg-success
+              {% elif order.status == 'shipped' %}bg-info
+              {% elif order.status == 'processing' %}bg-warning text-dark
+              {% elif order.status == 'cancelled' %}bg-danger
+              {% else %}bg-secondary
+              {% endif %}
+              rounded-pill">
+              {{ order.get_status_display }}
+            </span>
+          </div>
+
+          <p style="color:var(--text-muted); font-size:.9rem;">
+            Placed on {{ order.created_at|date:"F j, Y — g:i A" }}
+          </p>
+
+          <div class="cart-items-list">
+            {% for item in order.items.all %}
+            <div class="cart-item-row">
+              <div class="cart-item-details">
+                <h6 class="cart-item-name">{{ item.product_name }}</h6>
+                <p class="cart-item-price-each">
+                  ${{ item.price|floatformat:2 }} × {{ item.quantity }}
+                </p>
+              </div>
+              <div class="cart-item-right">
+                <span class="cart-item-line-total">${{ item.line_total|floatformat:2 }}</span>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+
+          <hr>
+
+          <div class="d-flex justify-content-between align-items-center mt-3">
+            <span style="font-weight:700; font-size:1.15rem; color:var(--text-dark);">Total</span>
+            <span style="font-weight:800; font-size:1.3rem; color:var(--primary, #6366f1);">
+              ${{ order.total|floatformat:2 }}
+            </span>
+          </div>
+
+          <a href="{% url 'cart' %}" class="btn btn-theme mt-4">
+            <i class="fa-solid fa-arrow-left me-1"></i> Back to Cart
+          </a>
+        {% else %}
+          <!-- NO SUBMISSION YET -->
+          <div class="text-center py-5">
+            <i class="fa-solid fa-magnifying-glass fa-3x mb-3" style="color:var(--text-muted);"></i>
+            <p style="color:var(--text-muted);">Submit an order code from the cart page to track your order.</p>
+            <a href="{% url 'cart' %}" class="btn btn-theme">
+              <i class="fa-solid fa-arrow-left me-1"></i> Back to Cart
+            </a>
+          </div>
+        {% endif %}
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

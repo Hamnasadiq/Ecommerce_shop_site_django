@@ -1,43 +1,62 @@
-{% extends 'shop/background.html' %} {% load static %} {% block content %}
+{% extends 'shop/background.html' %}
+{% load static %}
 
+{% block title %}Shopix — Browse Products{% endblock %}
+
+{% block content %}
 <div class="container-fluid py-4">
-  <!-- ================= HEADER (Mobile Hamburger) ================= -->
-  <div
-    class="d-md-none mb-3 d-flex justify-content-between align-items-center px-3"
-  >
-    <button class="btn btn-theme" id="sidebarToggle">☰</button>
-    <h4 class="mb-0">Shop</h4>
+
+  <!-- Messages -->
+  {% if messages %}
+  <div class="row justify-content-center mb-3">
+    <div class="col-11">
+      {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Mobile Header -->
+  <div class="d-md-none mb-3 d-flex justify-content-between align-items-center px-3">
+    <button class="btn btn-theme" id="sidebarToggle">
+      <i class="fa-solid fa-filter me-1"></i> Filters
+    </button>
+    <h5 class="mb-0" style="font-weight:700; color:var(--text-dark);">Shop</h5>
   </div>
 
   <div class="row">
-    <!-- ================= SIDEBAR ================= -->
-    <aside class="col-12 col-md-3 mb-4 mb-md-0">
+
+    <!-- SIDEBAR -->
+    <aside class="col-12 col-md-3 col-lg-2 mb-4 mb-md-0">
       <div class="sidebar" id="sidebar">
         <div class="accordion" id="categoryAccordion">
+
           <!-- All Products -->
           <div class="accordion-item">
             <h2 class="accordion-header">
-              <a href="/" class="accordion-button collapsed">All Products</a>
+              <a href="/" class="accordion-button collapsed" style="text-decoration:none;">
+                <i class="fa-solid fa-grid-2 me-2"></i> All Products
+              </a>
             </h2>
           </div>
 
-          <!-- Categories Loop -->
+          <!-- Categories -->
           {% for category in categories %}
           <div class="accordion-item">
             <h2 class="accordion-header">
-              <button
-                class="accordion-button collapsed"
+              <button class="accordion-button collapsed"
                 data-bs-toggle="collapse"
-                data-bs-target="#cat{{category.id}}"
-              >
+                data-bs-target="#cat{{category.id}}">
                 {{category.name}}
               </button>
             </h2>
-            <div
-              id="cat{{category.id}}"
+            <div id="cat{{category.id}}"
               class="accordion-collapse collapse"
-              data-bs-parent="#categoryAccordion"
-            >
+              data-bs-parent="#categoryAccordion">
               <div class="accordion-body p-1">
                 <ul class="list-group list-group-flush">
                   {% for sub in category.subcategories.all %}
@@ -50,51 +69,61 @@
             </div>
           </div>
           {% endfor %}
+
         </div>
       </div>
     </aside>
 
-    <!-- ================= MAIN CONTENT ================= -->
-    <main class="col-12 col-md-9 d-flex justify-content-center">
-      <div class="main-wrapper w-100" style="max-width: 1200px">
+    <!-- Sidebar Backdrop (mobile) -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <!-- MAIN CONTENT -->
+    <main class="col-12 col-md-9 col-lg-10">
+      <div class="main-wrapper w-100" style="max-width:1200px; margin:0 auto;">
+
         <!-- SEARCH -->
         <form class="mb-4 d-flex justify-content-center">
-          <div class="search-wrapper w-100 w-md-75">
-            <input
-              type="search"
-              name="item_name"
+          <div class="search-wrapper">
+            <input type="search" name="item_name"
               placeholder="Search products..."
-              class="form-control search-input"
-            />
-            <button class="search-btn" type="submit">🔍</button>
+              class="form-control search-input" />
+            <button class="search-btn" type="submit">
+              <i class="fa-solid fa-magnifying-glass"></i>
+            </button>
           </div>
         </form>
 
         <!-- PRODUCTS GRID -->
         <div class="products-wrapper">
           {% for product in product_objects %}
-          <div class="elegant-glass-card">
-            <img
-              src="{% if product.image and product.image.url %}{{product.image.url}}{% elif product.image_url %}{{product.image_url}}{% else %}{% static 'shop/no-image.png' %}{% endif %}"
-              alt="{{product.title}}"
-            />
-            <div class="mt-3">
+          <div class="elegant-glass-card fade-in-up" style="animation-delay: {{ forloop.counter0 }}00ms">
+            <div class="card-img-wrapper">
+              <img
+                src="{% if product.image and product.image.url %}{{product.image.url}}{% elif product.image_url %}{{product.image_url}}{% else %}{% static 'shop/no-image.png' %}{% endif %}"
+                alt="{{product.title}}" loading="lazy" />
+            </div>
+            <div class="card-body">
               <h5 class="product-name" data-id="{{product.id}}">
                 {{product.title}}
               </h5>
               <p class="product-price" data-id="{{product.id}}">
                 $ {{product.price}}
               </p>
-              <div class="d-flex justify-content-between">
-                <a href="/{{product.id}}" class="btn btn-theme">View</a>
-                <button
-                  class="btn atc btn-theme-solid"
-                  data-id="{{product.id}}"
-                >
-                  Add to cart
-                </button>
+              <div class="d-flex justify-content-between mt-auto gap-2">
+                <a href="/{{product.id}}/" class="btn btn-theme flex-fill">
+                  <i class="fa-solid fa-eye me-1"></i> View
+                </a>
+                <a href="{% url 'add_to_cart' product.id %}"
+                   class="btn btn-theme-solid flex-fill">
+                  <i class="fa-solid fa-cart-plus me-1"></i> Add
+                </a>
               </div>
             </div>
+          </div>
+          {% empty %}
+          <div class="text-center py-5 w-100">
+            <i class="fa-solid fa-box-open fa-3x mb-3" style="color:var(--text-light)"></i>
+            <p style="color:var(--text-muted); font-size:1.1rem;">No products found</p>
           </div>
           {% endfor %}
         </div>
@@ -104,11 +133,9 @@
           <ul class="pagination justify-content-center">
             {% if product_objects.has_previous %}
             <li class="page-item">
-              <a
-                class="page-link"
-                href="?page={{product_objects.previous_page_number}}"
-                >Previous</a
-              >
+              <a class="page-link" href="?page={{product_objects.previous_page_number}}">
+                <i class="fa-solid fa-chevron-left me-1"></i> Previous
+              </a>
             </li>
             {% endif %}
             <li class="page-item active">
@@ -116,206 +143,30 @@
             </li>
             {% if product_objects.has_next %}
             <li class="page-item">
-              <a
-                class="page-link"
-                href="?page={{product_objects.next_page_number}}"
-                >Next</a
-              >
+              <a class="page-link" href="?page={{product_objects.next_page_number}}">
+                Next <i class="fa-solid fa-chevron-right ms-1"></i>
+              </a>
             </li>
             {% endif %}
           </ul>
         </nav>
+
       </div>
     </main>
   </div>
 </div>
+{% endblock %}
 
-<!-- ================= CART SCRIPT ================= -->
+{% block extra_js %}
 <script>
-  const cart = JSON.parse(localStorage.getItem("cart") || "{}");
-
-  $(document).on("click", ".atc", function () {
-    const id = this.dataset.id;
-    const name = document.querySelector(
-      `.product-name[data-id='${id}']`,
-    ).innerText;
-    const price = parseFloat(
-      document
-        .querySelector(`.product-price[data-id='${id}']`)
-        .innerText.replace("$", ""),
-    );
-
-    if (cart[id]) cart[id][0] += 1;
-    else cart[id] = [1, name, price];
-
-    localStorage.setItem("cart", JSON.stringify(cart));
-  });
-
-  // ================= SIDEBAR TOGGLE =================
+  // Sidebar Toggle (mobile)
   $("#sidebarToggle").on("click", function () {
-    $("#sidebar").toggleClass("active");
+    $("#sidebar").addClass("active");
+    $("#sidebarBackdrop").addClass("active");
+  });
+  $("#sidebarBackdrop").on("click", function () {
+    $("#sidebar").removeClass("active");
+    $(this).removeClass("active");
   });
 </script>
-
-<style>
-  :root {
-    --theme: #6f4545;
-  }
-  body {
-    background: #f9f4f4;
-    font-family: sans-serif;
-    margin: 0;
-  }
-
-  /* ================= SIDEBAR ================= */
-  .sidebar {
-    background: var(--theme);
-    padding: 20px;
-    border-radius: 10px;
-    overflow-y: auto;
-  }
-  .sidebar a {
-    color: white;
-    text-decoration: none;
-  }
-  .sidebar a:hover {
-    opacity: 0.8;
-  }
-  .accordion-button {
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 8px;
-    margin-bottom: 5px;
-    color: white;
-    font-weight: 600;
-  }
-  .accordion-button:not(.collapsed) {
-    background: rgba(255, 255, 255, 0.1);
-  }
-  .accordion-item,
-  .list-group-item {
-    background: transparent;
-    border: none;
-    padding: 5px 0;
-  }
-
-  /* ================= SEARCH ================= */
-  .search-wrapper {
-    width: 100%;
-    max-width: 450px;
-    margin: 0 auto;
-    position: relative;
-  }
-  .search-input {
-    width: 100%;
-    padding: 10px 55px 10px 20px;
-    border-radius: 50px;
-    border: 2px solid var(--theme);
-    font-size: 1rem;
-    outline: none;
-  }
-  .search-input:focus {
-    box-shadow: 0 0 0 0.2rem rgba(111, 69, 69, 0.3);
-    border-color: var(--theme);
-  }
-  .search-btn {
-    position: absolute;
-    top: 50%;
-    right: 8px;
-    transform: translateY(-50%);
-    border-radius: 50%;
-    background: var(--theme);
-    border: none;
-    color: white;
-    padding: 6px 10px;
-    cursor: pointer;
-  }
-
-  /* ================= PRODUCT GRID ================= */
-  .products-wrapper {
-    display: grid;
-    gap: 1rem;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  }
-  .elegant-glass-card {
-    display: flex;
-    flex-direction: column;
-    padding: 1rem;
-    border-radius: 1.5rem;
-    border: 1px solid rgba(139, 93, 93, 0.5);
-    backdrop-filter: blur(20px);
-    background: rgba(255, 255, 255, 0.2);
-    box-shadow: 0 10px 30px rgba(139, 93, 93, 0.1);
-    transition: 0.3s;
-  }
-  .elegant-glass-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 15px 40px rgba(139, 93, 93, 0.25);
-  }
-  .elegant-glass-card img {
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
-    border-radius: 12px;
-  }
-
-  /* ================= BUTTONS ================= */
-  .btn-theme {
-    border: 2px solid var(--theme);
-    color: var(--theme);
-    background: white;
-    padding: 6px 12px;
-    cursor: pointer;
-  }
-  .btn-theme:hover {
-    background: var(--theme);
-    color: white;
-  }
-  .btn-theme-solid {
-    background: var(--theme);
-    color: white;
-    border: none;
-    padding: 6px 12px;
-    cursor: pointer;
-  }
-  .btn-theme-solid:hover {
-    opacity: 0.9;
-  }
-
-  /* ================= PAGINATION ================= */
-  .page-link {
-    color: var(--theme);
-  }
-  .page-item.active .page-link {
-    background: var(--theme);
-    border-color: var(--theme);
-  }
-
-  /* ================= MAIN WRAPPER ================= */
-  .main-wrapper {
-    margin: auto;
-  }
-
-  /* ================= RESPONSIVE ================= */
-  @media (max-width: 768px) {
-    .sidebar {
-      position: fixed;
-      top: 0;
-      left: -300px;
-      width: 250px;
-      height: 100vh;
-      transition: 0.3s;
-      z-index: 999;
-    }
-    .sidebar.active {
-      left: 0;
-    }
-    main {
-      margin-left: 0;
-    }
-    .search-wrapper {
-      max-width: 100%;
-    }
-  }
-</style>
-
 {% endblock %}

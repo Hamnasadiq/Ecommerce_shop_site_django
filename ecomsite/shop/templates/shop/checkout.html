@@ -1,144 +1,114 @@
+{% extends 'shop/background.html' %}
 {% load static %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
-  <title>Checkout</title>
+{% block title %}Checkout — Shopix{% endblock %}
 
-  <!-- Bootstrap CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- Custom CSS -->
-  <style>
-    body {
-      background-color: #f7f7f7;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
+{% block content %}
+<div class="container py-4">
+  <div class="checkout-container glass-card">
 
-    .checkout-container {
-      background: white;
-      padding: 30px;
-      border-radius: 15px;
-      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-      margin-top: 40px;
-    }
+    <!-- Cart Items -->
+    <h3 style="font-weight:700; color:var(--text-dark);">
+      <i class="fa-solid fa-cart-shopping me-2"></i> Your Cart
+    </h3>
+    <div class="mb-4 mt-3" id="item_list"></div>
 
-    .list-group-item {
-      font-size: 1rem;
-    }
+    <!-- Shipping Form -->
+    <h4 style="font-weight:700; color:var(--text-dark);" class="mt-4 mb-3">
+      <i class="fa-solid fa-truck me-2"></i> Shipping Information
+    </h4>
 
-    .form-control:focus {
-      box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-    }
+    <form method="POST">
+      {% csrf_token %}
+      <input type="hidden" id="items" name="items">
 
-    .btn-primary {
-      background-color: #007bff;
-      border-color: #007bff;
-      padding: 10px 30px;
-      font-weight: bold;
-    }
-
-    .btn-primary:hover {
-      background-color: #0056b3;
-      border-color: #004a99;
-    }
-
-    h3, h4 {
-      color: #333;
-    }
-
-    .badge-warning {
-      font-size: 0.9rem;
-      padding: 0.5em 0.75em;
-    }
-  </style>
-</head>
-
-<body>
-  <div class="container">
-    <div class="checkout-container">
-      <h3 class="mb-4">🛒 Your Cart</h3>
-      <ul class="list-group mb-4" id="item_list"></ul>
-
-      <h4 class="mb-3">🚚 Shipping Information</h4>
-      <form method="POST">
-        {% csrf_token %}
-        <input type="hidden" id="items" name="items">
-
-        <div class="row mb-3">
-          <div class="col-md-6">
-            <label for="name" class="form-label">Name</label>
-            <input id="name" name="name" type="text" class="form-control" placeholder="hamna" required>
-          </div>
-          <div class="col-md-6">
-            <label for="email" class="form-label">Email</label>
-            <input id="email" name="email" type="email" class="form-control" placeholder="hamna@gmail.com" required>
-          </div>
+      <div class="row mb-3 g-3">
+        <div class="col-md-6">
+          <label for="name" class="form-label">Full Name</label>
+          <input id="name" name="name" type="text" class="form-control"
+            placeholder="John Doe" required>
         </div>
-
-        <div class="mb-3">
-          <label for="address" class="form-label">Address</label>
-          <input id="address" name="address" type="text" class="form-control" placeholder="1234 Main St" required>
+        <div class="col-md-6">
+          <label for="email" class="form-label">Email</label>
+          <input id="email" name="email" type="email" class="form-control"
+            placeholder="john@example.com" required>
         </div>
+      </div>
 
-        <div class="row mb-3">
-          <div class="col-md-6">
-            <label for="city" class="form-label">City</label>
-            <input id="city" name="city" type="text" class="form-control" required>
-          </div>
-          <div class="col-md-4">
-            <label for="state" class="form-label">State</label>
-            <input id="state" name="state" type="text" class="form-control" required>
-          </div>
-          <div class="col-md-2">
-            <label for="zipcode" class="form-label">Zip</label>
-            <input id="zipcode" name="zipcode" type="text" class="form-control" required>
-          </div>
-          <div class="col-md-2">
-            <label for="zipcode" class="form-label">Amount to be paid</label>
-            <input readonly="" type="text" class="form-control" id="total" name="total">
-          </div>
+      <div class="mb-3">
+        <label for="address" class="form-label">Address</label>
+        <input id="address" name="address" type="text" class="form-control"
+          placeholder="1234 Main St" required>
+      </div>
+
+      <div class="row mb-3 g-3">
+        <div class="col-md-4">
+          <label for="city" class="form-label">City</label>
+          <input id="city" name="city" type="text" class="form-control" required>
         </div>
+        <div class="col-md-4">
+          <label for="state" class="form-label">State</label>
+          <input id="state" name="state" type="text" class="form-control" required>
+        </div>
+        <div class="col-md-4">
+          <label for="zipcode" class="form-label">Zip Code</label>
+          <input id="zipcode" name="zipcode" type="text" class="form-control" required>
+        </div>
+      </div>
 
-        <button type="submit" class="btn btn-primary mt-3">Place Order</button>
-      </form>
-    </div>
+      <div class="mb-3">
+        <label for="total" class="form-label">Amount to Pay</label>
+        <input readonly type="text" class="form-control" id="total" name="total"
+          style="font-weight:700; color:var(--primary); font-size:1.1rem;">
+      </div>
+
+      <button type="submit" class="btn btn-theme-solid mt-2"
+        style="padding:12px 36px; font-size:1rem;">
+        <i class="fa-solid fa-credit-card me-2"></i> Place Order
+      </button>
+    </form>
+
   </div>
+</div>
+{% endblock %}
 
-  <!-- jQuery + Bootstrap JS -->
-  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
+{% block extra_js %}
+<script>
+  let cart = localStorage.getItem('cart') ? JSON.parse(localStorage.getItem('cart')) : {};
+  let total = 0;
+  const itemList = document.getElementById('item_list');
 
-  <script type="text/javascript">
-    let cart = localStorage.getItem('cart') ? JSON.parse(localStorage.getItem('cart')) : {};
-    let total = 0;
+  for (let item in cart) {
+    let quantity = cart[item][0];
+    let name = cart[item][1];
+    let price = cart[item][2];
+    total += price * quantity;
 
-    for (let item in cart) {
-      let quantity = cart[item][0];
-      let name = cart[item][1];
-      let price = cart[item][2];
-      total += price;
+    itemList.innerHTML += `
+      <div class="cart-item">
+        <span class="item-name">
+          <strong>${quantity}x</strong> ${name}
+        </span>
+        <span class="item-price">$ ${(price * quantity).toFixed(2)}</span>
+      </div>`;
+  }
 
-      let itemHTML = `
-        <li class="list-group-item d-flex justify-content-between align-items-center">
-          ${quantity} of <strong>${name}</strong>
-          <span class="badge bg-warning text-dark rounded-pill">${price}</span>
-        </li>`;
-      
-      $('#item_list').append(itemHTML);
-    }
+  if (Object.keys(cart).length === 0) {
+    itemList.innerHTML = `
+      <div class="text-center py-4" style="color:var(--text-muted);">
+        <i class="fa-solid fa-cart-shopping fa-2x mb-2"></i>
+        <p>Your cart is empty</p>
+        <a href="/" class="btn btn-theme">Continue Shopping</a>
+      </div>`;
+  } else {
+    itemList.innerHTML += `
+      <div class="cart-total">
+        <span>Total</span>
+        <span>$ ${total.toFixed(2)}</span>
+      </div>`;
+  }
 
-    let totalHTML = `
-      <li class="list-group-item d-flex justify-content-between align-items-center">
-        <strong>Total</strong>
-        <span class="badge bg-success text-light rounded-pill">${total}</span>
-      </li>`;
-
-    $('#total').val(total);  
-    $('#item_list').append(totalHTML);
-    $('#items').val(JSON.stringify(cart));
-  </script>
-</body>
-</html>
+  document.getElementById('total').value = total.toFixed(2);
+  document.getElementById('items').value = JSON.stringify(cart);
+</script>
+{% endblock %}

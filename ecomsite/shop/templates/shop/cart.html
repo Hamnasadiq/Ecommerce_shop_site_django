@@ -1,0 +1,140 @@
+{% extends 'shop/background.html' %}
+{% load static %}
+
+{% block title %}Your Cart — Shopix{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'shop/css/cart.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+  <!-- Messages -->
+  {% if messages %}
+  <div class="row justify-content-center mb-3">
+    <div class="col-lg-10">
+      {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        <i class="fa-solid {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'warning' %}fa-triangle-exclamation{% else %}fa-circle-info{% endif %} me-2"></i>
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="row g-4">
+
+    <!-- ===================== LEFT: CART ITEMS ===================== -->
+    <div class="col-lg-7">
+      <div class="cart-card glass-card">
+        <div class="cart-card-header">
+          <h3>
+            <i class="fa-solid fa-cart-shopping me-2"></i>Your Cart
+          </h3>
+          <span class="badge bg-primary rounded-pill">{{ cart_items|length }} item{{ cart_items|length|pluralize }}</span>
+        </div>
+
+        {% if cart_items %}
+          <div class="cart-items-list">
+            {% for item in cart_items %}
+            <div class="cart-item-row">
+              <div class="cart-item-img">
+                <img
+                  src="{% if item.product.image and item.product.image.url %}{{ item.product.image.url }}{% elif item.product.image_url %}{{ item.product.image_url }}{% else %}{% static 'shop/no-image.png' %}{% endif %}"
+                  alt="{{ item.product.title }}" loading="lazy" />
+              </div>
+
+              <div class="cart-item-details">
+                <h6 class="cart-item-name">{{ item.product.title }}</h6>
+                <p class="cart-item-price-each">
+                  ${{ item.price|floatformat:2 }} × {{ item.quantity }}
+                </p>
+              </div>
+
+              <div class="cart-item-right">
+                <span class="cart-item-line-total">${{ item.line_total|floatformat:2 }}</span>
+                <a href="{% url 'delete_cart_item' item.id %}"
+                   class="btn btn-sm btn-outline-danger cart-delete-btn"
+                   title="Remove item">
+                  <i class="fa-solid fa-trash-can"></i>
+                </a>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="cart-empty text-center py-5">
+            <i class="fa-solid fa-cart-shopping fa-3x mb-3"></i>
+            <p>Your cart is empty</p>
+            <a href="/" class="btn btn-theme">
+              <i class="fa-solid fa-arrow-left me-1"></i> Continue Shopping
+            </a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- ===================== RIGHT: SUMMARY + TRACKING ===================== -->
+    <div class="col-lg-5">
+
+      <!-- ORDER SUMMARY -->
+      {% if cart_items %}
+      <div class="cart-card glass-card mb-4">
+        <div class="cart-card-header">
+          <h5><i class="fa-solid fa-receipt me-2"></i>Order Summary</h5>
+        </div>
+
+        <div class="summary-body">
+          {% for item in cart_items %}
+          <div class="summary-row">
+            <span>{{ item.product.title }} × {{ item.quantity }}</span>
+            <span>${{ item.line_total|floatformat:2 }}</span>
+          </div>
+          {% endfor %}
+
+          <hr>
+
+          <div class="summary-row summary-total">
+            <span>Total</span>
+            <span>${{ cart.total_price|floatformat:2 }}</span>
+          </div>
+        </div>
+
+        <form method="POST" action="{% url 'place_order' %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-theme-solid w-100 place-order-btn mt-3">
+            <i class="fa-solid fa-bag-shopping me-2"></i>Place Order
+          </button>
+        </form>
+      </div>
+      {% endif %}
+
+      <!-- TRACK PREVIOUS ORDER -->
+      <div class="cart-card glass-card">
+        <div class="cart-card-header">
+          <h5><i class="fa-solid fa-magnifying-glass-location me-2"></i>Track Previous Order</h5>
+        </div>
+
+        <form method="POST" action="{% url 'track_order' %}">
+          {% csrf_token %}
+          <div class="input-group">
+            <span class="input-group-text"><i class="fa-solid fa-hashtag"></i></span>
+            <input type="text" name="order_code" class="form-control"
+                   placeholder="e.g. #ORD-7A2B9" required>
+            <button class="btn btn-theme" type="submit">Track</button>
+          </div>
+          <small class="text-muted mt-2 d-block">
+            Enter your order code to check the status.
+          </small>
+        </form>
+      </div>
+
+    </div>
+    <!-- end right column -->
+
+  </div>
+</div>
+{% endblock %}

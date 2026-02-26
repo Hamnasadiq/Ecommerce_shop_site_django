@@ -1,50 +1,71 @@
 {% load static %}
 
-<link rel="stylesheet" href="{% static 'shop/css/header.css' %}">
-
 <header class="glass-header">
+  <div class="container d-flex justify-content-between align-items-center py-2">
 
-<div class="container d-flex justify-content-between align-items-center py-3">
+    <!-- LOGO -->
+    <a href="/" class="d-flex align-items-center text-decoration-none">
+      <img src="https://cdn-icons-png.flaticon.com/512/3081/3081559.png"
+        width="36" class="me-2" alt="Shopix">
+      <h4 class="logo-text mb-0">Shopix</h4>
+    </a>
 
-<!-- LOGO + WEBSITE NAME -->
+    <!-- MOBILE TOGGLE -->
+    <button class="mobile-toggle" id="mobileToggle" aria-label="Menu">
+      <i class="fa-solid fa-bars"></i>
+    </button>
 
-<a href="/" class="d-flex align-items-center text-decoration-none">
+    <!-- DESKTOP NAV -->
+    <nav class="header-nav" id="headerNav">
+      <a href="/" class="nav-link">HOME</a>
+      <a href="{% url 'cart' %}" class="nav-link">
+        <i class="fa-solid fa-cart-shopping"></i> CART
+      </a>
 
-<!-- Default Temporary Logo -->
+      {% if user.is_authenticated %}
+        <span class="nav-link" style="cursor:default; opacity:0.7;">
+          <i class="fa-solid fa-user"></i> {{ user.username }}
+        </span>
+        <a href="{% url 'logout' %}" class="signin-btn">
+          <i class="fa-solid fa-right-from-bracket me-1"></i> Logout
+        </a>
+      {% else %}
+        <a href="{% url 'login' %}" class="signin-btn">
+          <i class="fa-solid fa-user me-1"></i> Sign In
+        </a>
+      {% endif %}
+    </nav>
+  </div>
 
-<img src="https://cdn-icons-png.flaticon.com/512/3081/3081559.png"
-  width="40"
-  class="me-2">
-
-<h4 class="logo-text mb-0">
-Shopix
-</h4>
-
-</a>
-
-<!-- NAVIGATION -->
-
-<nav class="d-flex gap-4 align-items-center">
-
-<a href="/" class="nav-link">
-HOME
-</a>
-
-<a href="/about" class="nav-link">
-ABOUT US
-</a>
-
-<!-- SIGN IN BUTTON -->
-
-<a href="/login"
-class="btn signin-btn">
-
-Sign In
-
-</a>
-
-</nav>
-
-</div>
-
+  <!-- MOBILE NAV -->
+  <div class="mobile-nav" id="mobileNav">
+    <a href="/" class="nav-link">HOME</a>
+    <a href="{% url 'cart' %}" class="nav-link">
+      <i class="fa-solid fa-cart-shopping me-1"></i> CART
+    </a>
+    {% if user.is_authenticated %}
+      <span class="nav-link" style="opacity:0.7;">
+        <i class="fa-solid fa-user me-1"></i> {{ user.username }}
+      </span>
+      <a href="{% url 'logout' %}" class="nav-link">Logout</a>
+    {% else %}
+      <a href="{% url 'login' %}" class="nav-link">Sign In</a>
+      <a href="{% url 'signup' %}" class="nav-link">Sign Up</a>
+    {% endif %}
+  </div>
 </header>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const toggle = document.getElementById('mobileToggle');
+    const mobileNav = document.getElementById('mobileNav');
+    if (toggle && mobileNav) {
+      toggle.addEventListener('click', () => {
+        mobileNav.classList.toggle('active');
+        const icon = toggle.querySelector('i');
+        icon.classList.toggle('fa-bars');
+        icon.classList.toggle('fa-xmark');
+      });
+    }
+  });
+</script>
