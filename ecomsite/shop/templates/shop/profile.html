@@ -1,0 +1,134 @@
+{% extends 'shop/background.html' %}
+{% load static %}
+
+{% block title %}My Profile — Shopix{% endblock %}
+
+{% block extra_css %}
+<style>
+  .profile-container {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 20px;
+  }
+  .profile-header {
+    margin-bottom: 40px;
+    text-align: center;
+  }
+  .profile-avatar {
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(135deg, var(--bg-gradient-3), var(--primary));
+    border-radius: 50%;
+    margin: 0 auto 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    color: white;
+    box-shadow: 0 8px 16px var(--card-shadow);
+  }
+  .user-info-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-lg);
+    padding: 30px;
+    margin-bottom: 40px;
+    box-shadow: 0 10px 30px var(--card-shadow);
+  }
+  .wishlist-title {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    margin-bottom: 25px;
+    color: var(--text-dark);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .wishlist-grid {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+  .empty-wishlist {
+    text-align: center;
+    padding: 60px 20px;
+    background: rgba(255,255,255,0.3);
+    border-radius: var(--radius-lg);
+    border: 1px dashed var(--card-border);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+  
+  <div class="profile-header fade-in-up">
+    <div class="profile-avatar">
+      <i class="fa-solid fa-user"></i>
+    </div>
+    <h2 style="font-weight: 800; color: var(--text-dark);">{{ user.username }}</h2>
+    <p style="color: var(--text-muted);">{{ user.email }}</p>
+  </div>
+
+  <div class="user-info-card fade-in-up" style="animation-delay: 100ms">
+    <div class="row align-items-center">
+      <div class="col-md-6">
+        <h5 style="font-weight: 700; color: var(--primary);">Account Details</h5>
+        <p class="mb-1"><strong>Username:</strong> {{ user.username }}</p>
+        <p class="mb-0"><strong>Email:</strong> {{ user.email }}</p>
+      </div>
+      <div class="col-md-6 text-md-end mt-3 mt-md-0">
+        <a href="{% url 'logout' %}" class="btn btn-theme">
+          <i class="fa-solid fa-right-from-bracket me-2"></i> Logout
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="wishlist-section fade-in-up" style="animation-delay: 200ms">
+    <h3 class="wishlist-title">
+      <i class="fa-solid fa-heart" style="color: var(--primary);"></i> My Wishlist
+    </h3>
+
+    {% if wishlist_items %}
+      <div class="wishlist-grid">
+        {% for product in wishlist_items %}
+        <div class="skincare-card">
+          <div class="card-img-container">
+            <img src="{% if product.image and product.image.url %}{{product.image.url}}{% elif product.image_url %}{{product.image_url}}{% else %}{% static 'shop/no-image.png' %}{% endif %}" 
+                 alt="{{product.title}}">
+            <div class="card-actions">
+              <a href="{% url 'toggle_wishlist' product.id %}" class="action-btn active" title="Remove from Wishlist">
+                <i class="fa-solid fa-heart"></i>
+              </a>
+              <a href="{% url 'add_to_cart' product.id %}" class="action-btn" title="Add to Cart">
+                <i class="fa-solid fa-shopping-bag"></i>
+              </a>
+            </div>
+          </div>
+          <div class="card-content">
+            <span class="brand-name">Shopix Luxe</span>
+            <h4 class="product-title">{{ product.title }}</h4>
+            <div class="price-wrapper">
+              <span class="current-price">${{ product.price }}</span>
+              {% if product.discount > 0 %}
+                <span class="old-price">${{ product.price|add:product.discount }}</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-wishlist">
+        <i class="fa-solid fa-heart-crack fa-3x mb-3" style="color: var(--text-light);"></i>
+        <h4>Your wishlist is empty</h4>
+        <p style="color: var(--text-muted);">Browse our products and add some to your favorites!</p>
+        <a href="{% url 'index' %}" class="btn btn-theme-solid mt-2">Start Shopping</a>
+      </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}
